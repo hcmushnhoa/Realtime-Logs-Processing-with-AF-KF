@@ -23,3 +23,7 @@ airflow standalone
 # change WTF_CSRF_ENABLED -> False,WTF_CSRF_ENABLED trong file 'webserver_config.py' để không bị bad request
 # airflow mặc đỉnh chỉ đọc trong /airflow/dags/. Nếu không load được dags thì check dags_folder trong airflow.config nếu chưa đúng thì sửa path lại 
 # dags_folder = /workspaces/Realtime-Logs-Processing-with-AF-KF/dags hoặc khi tạo mkdir airflow thì tạo dags bên trong luôn
+
+###
+chạy action 
+tạo maa(tạo vpc)
