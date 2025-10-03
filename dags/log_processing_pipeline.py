@@ -1,5 +1,5 @@
-from  airflow import DAG
-from airflow.providers.standard.operators.python import PythonOperator
+from airflow import DAG
+from airflow.operators.python import PythonOperator
 from confluent_kafka import Consumer, KafkaException
 from elasticsearch import Elasticsearch, helpers
 from datetime import timedelta, datetime
@@ -16,7 +16,7 @@ def parse_log_entry(log_entry):
         return None
     data=match.groupdict()
     try:
-        parsed_timestamp=datetime.strptime(data['timestamp',format: '%d %b %Y %H:%M%S'])
+        parsed_timestamp = datetime.strptime(data['timestamp'], '%d/%b/%Y:%H:%M:%S %z')
         data['@timestamp']=parsed_timestamp.isoformat() 
     except ValueError:
         logger.error(f"Timestamp parsing error: {data['timestamp']}")
@@ -25,7 +25,7 @@ def parse_log_entry(log_entry):
     return data
     
 
-def consume_index_logs():
+def consume_index_logs(max_messages=1000, timeout_seconds=30):
     secrets=get_secret('MWAA_Seccrets_V2')
     consumer_config={
         'bootstrap.servers':secrets['KAFKA_BOOTSTRAP_SERVER'],
@@ -57,9 +57,12 @@ def consume_index_logs():
     logs=[]
     
     try: 
-
-        while True:
-            msg=consumer.poll(timeout= 1.0)
+        messages_processed = 0
+        start_time = datetime.now()
+        while messages_processed < max_messages:
+            if (datetime.now() - start_time).total_seconds() > timeout_seconds:
+                break
+            msg=consumer.poll(timeout= 1.0) # request to get message
             if msg is None:
                 continue 
             if msg.error():
@@ -73,9 +76,9 @@ def consume_index_logs():
         
             if parsed_log:
                 logs.append(parsed_log)
-    
+                messages_processed += 1
             #index when 15000 logs be collected
-            if len(logs)>15000:
+            if len(logs)>1000:
                 actions=[
                     {
                         '_op_type':'create',
@@ -120,7 +123,7 @@ with DAG(
     'log_consumer_pipeline',
     default_args= default_args,
     description= 'generate and produce log',
-    schedule= '*/5 * * * *',
+    schedule_interval='*/5 * * * *',
     start_date=datetime(2025,1,1),
     catchup= False,
     tags=['log','kafka','production']
