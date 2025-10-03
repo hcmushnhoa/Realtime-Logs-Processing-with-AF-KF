@@ -1,4 +1,4 @@
 pip install boto3, Faker, 
 source .venv/bin/activate: run enviroment for virtual project
-install airflow: pip install apache-airflow
+pip install apache-airflow: install airflow
 python dags/log_producer.py: run directly file from dags
