@@ -15,7 +15,12 @@ jobs:
       - name: Configure AWS credentials
         uses: jakejarvis/s3-sync-action@master
         with:
-          args: --exclude ".git/*" --exclude ".github/*" --exclude ".gitignore/*" --exclude ".gitattributes" 
+          args: |
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --exclude ".gitignore" \
+            --exclude ".gitattributes"
+ 
         env:
           AWS_S3_BUCKET: 'dml-produce'
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
