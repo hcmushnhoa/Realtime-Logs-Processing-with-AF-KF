@@ -25,7 +25,7 @@ def parse_log_entry(log_entry):
     return data
     
 
-def consume_index_logs(max_messages=1000, timeout_seconds=30):
+def consume_index_logs(max_messages=10000, timeout_seconds=100):
     secrets=get_secret('MWAA_Seccrets_V2')
     consumer_config={
         'bootstrap.servers':secrets['KAFKA_BOOTSTRAP_SERVER'],
@@ -59,7 +59,7 @@ def consume_index_logs(max_messages=1000, timeout_seconds=30):
     try: 
         messages_processed = 0
         start_time = datetime.now()
-        while messages_processed < max_messages:
+        while True:
             if (datetime.now() - start_time).total_seconds() > timeout_seconds:
                 break
             msg=consumer.poll(timeout= 1.0) # request to get message
@@ -76,9 +76,9 @@ def consume_index_logs(max_messages=1000, timeout_seconds=30):
         
             if parsed_log:
                 logs.append(parsed_log)
-                messages_processed += 1
             #index when 15000 logs be collected
-            if len(logs)>1000:
+            # cứ mỗi 10000 log thì gửi đến es
+            if len(logs)==10000:
                 actions=[
                     {
                         '_op_type':'create',
@@ -90,6 +90,7 @@ def consume_index_logs(max_messages=1000, timeout_seconds=30):
                 success, failed = helpers.bulk(es, actions, refresh=True)
                 logger.info(f'Index {success} logs, {len(failed)} failed')
                 logs=[] #reset logs
+                
     except Exception as e:
         logger.error(f'Failed to index log: {e}')    
     #index any remaining logs
