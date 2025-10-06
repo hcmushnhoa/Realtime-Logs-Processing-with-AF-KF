@@ -1,5 +1,9 @@
-from datetime import datetime
+
+from airflow import DAG
+from airflow.operators.python import PythonOperator
 from confluent_kafka import Producer
+from elasticsearch import Elasticsearch, helpers
+from datetime import datetime, timedelta
 from faker import Faker
 import logging, random
 from utils import get_secret
@@ -69,7 +73,25 @@ def produce_logs(**context):
             logger.error(f'Error producing log: {e}')
             raise
     logger.info(f'Produced 15,000 logs to topic  {topic}')
+default_args={
+    'owner': 'hodeptrai',
+    'email': 'toilahoadeptraine@gmail.com',
+    'depends_on_past': False,
+    'email_on_failure': False,
+    'retries': 1,
+    'retry_delay': timedelta(seconds=5)
+}
 
-
-
-produce_logs()
+with DAG(
+    'log_generation_pipeline',
+    default_args= default_args,
+    description= 'generate and produce log',
+    schedule_interval='*/5 * * * *',
+    start_date=datetime(2025,1,1),
+    catchup= False,
+    tags=['log','kafka','production']
+) as dag:
+    generate_logs= PythonOperator(
+        task_id='generate_and_produce_logs',
+        python_callable=produce_logs
+    )

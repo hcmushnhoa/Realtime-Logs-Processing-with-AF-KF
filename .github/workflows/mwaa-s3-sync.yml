@@ -22,4 +22,5 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  
           AWS_REGION: 'us-east-1'   # optional: defaults to us-east-1
-          DEST_DIR: 'project-realtime-log'          # optional: defaults to entire repository
+          DEST_DIR: 'project-realtime-log'  # folder in bucket to add dags and requiresments.txt
+          

@@ -25,5 +25,8 @@ airflow standalone
 # dags_folder = /workspaces/Realtime-Logs-Processing-with-AF-KF/dags hoặc khi tạo mkdir airflow thì tạo dags bên trong luôn
 
 ###
-chạy action 
-tạo maa(tạo vpc)
+chạy action to upload file and dags to S3
+tạo maa(tạo vpc) sau đó tạo enviroment maa -> open airflow UI and check error -> check permission and add role: 'SecretsManagerReadWrite'
+
+vào cloudwatch check log groups để tìm log khi run dags: ...-production-task 
+
