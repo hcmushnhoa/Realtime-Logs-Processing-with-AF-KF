@@ -78,7 +78,7 @@ def consume_index_logs(max_messages=10000, timeout_seconds=100):
                 logs.append(parsed_log)
             #index when 15000 logs be collected
             # cứ mỗi 10000 log thì gửi đến es
-            if len(logs)==10000:
+            if len(logs)>=15000:
                 actions=[
                     {
                         '_op_type':'create',
